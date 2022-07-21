@@ -10,7 +10,7 @@ const Search = () => {
     <div className={styles.root}>
       <svg
         className={styles.searchIcon}
-        enable-background="new 0 0 50 50"
+        enableBackground="new 0 0 50 50"
         height="50px"
         id="Layer_1"
         version="1.1"
@@ -25,15 +25,15 @@ const Search = () => {
           fill="none"
           r="16"
           stroke="#000000"
-          stroke-linecap="round"
-          stroke-miterlimit="10"
-          stroke-width="2"
+          strokeLinecap="round"
+          strokeMiterlimit="10"
+          strokeWidth="2"
         />
         <line
           fill="none"
           stroke="#000000"
-          stroke-miterlimit="10"
-          stroke-width="4"
+          strokeMiterlimit="10"
+          strokeWidth="4"
           x1="32.229"
           x2="45.5"
           y1="32.229"
