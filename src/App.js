@@ -7,7 +7,7 @@ import { Routes, Route } from 'react-router-dom'
 import Cart from '../src/pages/Cart'
 import { useState } from 'react';
 
-export const SearchContext = React.createContext('')
+export const SearchContext = React.createContext()
 
 function App() {
   const [searchValue, setSearchValue] = useState('')
