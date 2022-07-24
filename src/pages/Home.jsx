@@ -1,16 +1,19 @@
 import React, { useContext } from "react";
+import { useNavigate } from 'react-router-dom'
 import Categories from "../components/Categories";
 import Sort from "../components/Sort";
 import Skeleton from "../components/PizzaBlock/Skeleton";
 import PizzaBlock from "../components/PizzaBlock/PizzaBlock";
 import { useEffect, useState } from "react";
 import axios from "axios";
+import qs from 'qs'
 import Pagination from "../components/Pagination/Pagination";
 import { SearchContext } from "../App";
 import { useSelector, useDispatch } from "react-redux";
 import { setCategoryId, setCurrentPage } from "../redux/slices/filterSlice";
 
 const Home = () => {
+  const navigate = useNavigate()
   const dispatch = useDispatch();
 
   const categoryId = useSelector((state) => state.filter.categoryId);
@@ -47,6 +50,16 @@ const Home = () => {
     })
     window.scrollTo(0, 0);
   }, [categoryId, sortType, searchValue, currentPage]);
+
+  useEffect(() => {
+    const queryString = qs.stringify({
+      sortProperty: sortType,
+      categoryId,
+      currentPage
+    })
+
+    navigate(`?${queryString}`)
+  },[categoryId, sortType, searchValue, currentPage])
 
   const pizzas = items.map((obj) => <PizzaBlock key={obj.id} {...obj} />);
   const skeletons = [...new Array(6)].map((_, index) => (
