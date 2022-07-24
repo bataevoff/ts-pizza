@@ -1,27 +1,32 @@
-import React, { useContext } from "react";
-import { useNavigate } from 'react-router-dom'
+import React, { useContext, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import Categories from "../components/Categories";
 import Sort from "../components/Sort";
 import Skeleton from "../components/PizzaBlock/Skeleton";
 import PizzaBlock from "../components/PizzaBlock/PizzaBlock";
 import { useEffect, useState } from "react";
 import axios from "axios";
-import qs from 'qs'
+import qs from "qs";
 import Pagination from "../components/Pagination/Pagination";
 import { SearchContext } from "../App";
 import { useSelector, useDispatch } from "react-redux";
-import { setCategoryId, setCurrentPage } from "../redux/slices/filterSlice";
+import {
+  setCategoryId,
+  setCurrentPage,
+  setFilters,
+} from "../redux/filter/filterSlice";
+import sortList from "../components/Sort";
+import { selectFilter } from '../redux/filter/selectors';
 
 const Home = () => {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const dispatch = useDispatch();
+  const isSearch = useRef(false);
+  const isMounted = useRef(false);
 
-  const categoryId = useSelector((state) => state.filter.categoryId);
-  const sortType = useSelector((state) => state.filter.sort.sortProperty);
-  const currentPage = useSelector((state) => state.filter.currentPage);
+  const { categoryId, sort, currentPage } = useSelector(selectFilter);
 
   const { searchValue } = useContext(SearchContext);
-
   const [items, setItems] = useState([]);
   const [isLoading, setLoading] = useState(true);
 
@@ -29,39 +34,71 @@ const Home = () => {
     dispatch(setCategoryId(id));
   };
 
-  const onChangePage = number => {
-    dispatch(setCurrentPage(number))
-  }
+  const onChangePage = (number) => {
+    dispatch(setCurrentPage(number));
+  };
 
-  useEffect(() => {
+  const fetchPizzas = () => {
     setLoading(true);
 
-    const order = sortType.includes("-") ? "asc" : "desc";
-    const sortBy = sortType.replace("-", "");
+    const order = sort.sortProperty.includes("-") ? "asc" : "desc";
+    const sortBy = sort.sortProperty.replace("-", "");
     const category = categoryId > 0 ? `category=${categoryId}` : "";
     const search = searchValue ? `&search=${searchValue}` : "";
 
-    axios.get(
-      `https://62d4adc1cd960e45d45a61f5.mockapi.io/items?page=${currentPage}&limit=4&${category}&sortBy=${sortBy}&order=${order}${search}`
-    )
-    .then(res => {
-      setItems(res.data)
-      setLoading(false)
-    })
-    window.scrollTo(0, 0);
-  }, [categoryId, sortType, searchValue, currentPage]);
+    axios
+      .get(
+        `https://62d4adc1cd960e45d45a61f5.mockapi.io/items?page=${currentPage}&limit=4&${category}&sortBy=${sortBy}&order=${order}${search}`
+      )
+      .then((res) => {
+        setItems(res.data);
+        setLoading(false);
+      });
+  };
 
   useEffect(() => {
-    const queryString = qs.stringify({
-      sortProperty: sortType,
-      categoryId,
-      currentPage
-    })
+    if (window.location.search) {
+      const params = qs.parse(window.location.search.substring(1));
 
-    navigate(`?${queryString}`)
-  },[categoryId, sortType, searchValue, currentPage])
+      const sort = sortList.find(
+        (obj) => obj.sortProperty === params.sortProperty
+      );
+
+      dispatch(
+        setFilters({
+          ...params,
+          sort,
+        })
+      );
+      isSearch.current = true;
+    }
+  }, []);
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+
+    if (!isSearch.current) {
+      fetchPizzas();
+    }
+
+    isSearch.current = false;
+  }, [categoryId, sort.sortProperty, searchValue, currentPage]);
+
+  useEffect(() => {
+    if (isMounted.current) {
+      const queryString = qs.stringify({
+        sortProperty: sort.sortProperty,
+        categoryId,
+        currentPage,
+      });
+
+      navigate(`?${queryString}`);
+    }
+    isMounted.current = true
+  }, [categoryId, sort.sortProperty, currentPage]);
 
   const pizzas = items.map((obj) => <PizzaBlock key={obj.id} {...obj} />);
+
   const skeletons = [...new Array(6)].map((_, index) => (
     <Skeleton key={index} />
   ));
