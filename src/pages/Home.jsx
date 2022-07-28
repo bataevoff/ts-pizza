@@ -56,23 +56,23 @@ const Home = () => {
       });
   };
 
-  useEffect(() => {
-    if (window.location.search) {
-      const params = qs.parse(window.location.search.substring(1));
-
-      const sort = sortList.find(
-        (obj) => obj.sortProperty === params.sortProperty
-      );
-
-      dispatch(
-        setFilters({
-          ...params,
-          sort,
-        })
-      );
-      isSearch.current = true;
-    }
-  }, []);
+  // useEffect(() => {
+  //   if (window.location.search) {
+  //     const params = qs.parse(window.location.search.substring(1));
+  //
+  //     const sort = sortList.find(
+  //       (obj) => obj.sortProperty === params.sortProperty
+  //     );
+  //
+  //     dispatch(
+  //       setFilters({
+  //         ...params,
+  //         sort,
+  //       })
+  //     );
+  //     isSearch.current = true;
+  //   }
+  // }, []);
 
   useEffect(() => {
     window.scrollTo(0, 0);
