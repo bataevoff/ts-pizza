@@ -2,12 +2,24 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from 'react-redux';
 import CartItem from '../components/CartItem';
+import { clearItems } from '../redux/cart/cartSlice';
+import CartEmpty from '../components/Search/CartEmpty';
 
 const Cart = () => {
   const dispatch = useDispatch()
   const { items, totalPrice } = useSelector((state) => state.cart)
 
   const totalCount = items.reduce((sum, item) => item.count + sum, 0)
+
+  const onClickClear = () => {
+    if (window.confirm('Are you sure you want to clear the cart?')) {
+      dispatch(clearItems())
+    }
+  }
+
+  if (!totalPrice) {
+    return <CartEmpty />
+  }
 
   return (
     <div className="container container--cart">
@@ -45,7 +57,7 @@ const Cart = () => {
             </svg>
             Корзина
           </h2>
-          <div className="cart__clear">
+          <div onClick={onClickClear} className="cart__clear">
             <svg
               width="20"
               height="20"
